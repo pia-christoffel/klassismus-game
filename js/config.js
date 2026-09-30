@@ -15,7 +15,13 @@ window.BERG = window.BERG || {};
 
 BERG.CONFIG = {
   // Logische Auflösung des Spielfelds (wird auf die Fenstergröße skaliert)
-  view: { width: 960, height: 540 },
+  // Sichtbereich in Spielpixeln. 960 × 540 ist die Grundgröße (16:9). Je nach
+  // Fenster wird er breiter oder höher – Figur und Sprünge bleiben gleich groß.
+  view: {
+    width: 960, height: 540,
+    maxWidth: 1400,  // breiteste Ansicht (sehr breite Fenster bekommen sonst Ränder)
+    maxHeight: 1080, // höchste Ansicht (nur sehr hohe, schmale Fenster bekommen Ränder)
+  },
 
   // ---------------------------------------------------------------------------
   // GRUNDWERTE – für beide Charaktere identisch

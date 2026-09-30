@@ -13,6 +13,17 @@ einfache Schuhe, **Charakter B** (rechts) ist gut ausgerüstet. A steht links, d
 **Steuerung:** `A`/`D` oder `←`/`→` gehen · `Leertaste` (oder `W`/`↑`) springen ·
 `E` benutzen (Proviant, Hütte) · `S` halten zum Verschnaufen · `Esc` Pause
 
+**Fenstergröße:** Das Spielfeld füllt immer das ganze Fenster. Die Figur bleibt gleich groß, nur der
+sichtbare Ausschnitt wird breiter oder höher. Grenzen dafür: `view.maxWidth` / `view.maxHeight` in `js/config.js`.
+
+**Handy & Tablet:** Auf Touch-Geräten erscheinen automatisch Bildschirm-Tasten
+(links ◀ ▶, rechts springen / benutzen / verschnaufen, oben Pause). Gespielt wird im Querformat,
+im Hochformat pausiert das Spiel und bittet ums Drehen. Beim Schuhe binden tippt man die linke oder
+rechte Schuhhälfte an. Am Desktop ändert sich nichts. Zum Testen am Rechner: `index.html?touch`.
+Code: `js/touch.js`, Styles am Ende von `css/style.css`.
+Fürs Handy muss das Spiel online liegen (z. B. GitHub Pages), denn eine Datei per Doppelklick
+lässt sich auf dem Handy nicht einfach öffnen.
+
 **Debug-Modus:** `index.html?debug`. Zeigt Hitboxen und erlaubt Sprünge im Level:
 `1`–`5` Checkpoints · `6` Grat · `7` Nebel · `8` Sturm · `9` Gipfel ·
 `M` volle / `N` leere Ausdauer · `K` Durchgang sofort beenden.

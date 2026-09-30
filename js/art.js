@@ -60,8 +60,9 @@ BERG.PALETTE = {
 
 (function () {
   const P = BERG.PALETTE;
-  const W = BERG.CONFIG.view.width;
-  const H = BERG.CONFIG.view.height;
+  // Sichtbereich in Spielpixeln. Höhe fest, Breite passt sich auf dem Handy an (Art.setView).
+  let W = BERG.CONFIG.view.width;
+  let H = BERG.CONFIG.view.height;
 
   // ---------------------------------------------------------------------------
   // Hilfsfunktionen
@@ -120,16 +121,21 @@ BERG.PALETTE = {
     h.strokeStyle = P.ink; h.lineWidth = 1;
     h.beginPath(); h.moveTo(0, 14); h.lineTo(14, 0); h.moveTo(-4, 4); h.lineTo(4, -4); h.moveTo(10, 18); h.lineTo(18, 10); h.stroke();
 
-    // Vignette
     vignetteCanvas = document.createElement('canvas');
+    fogCanvas = document.createElement('canvas');
+    Art.setView(W, H);
+  };
+
+  /** Neue Größe des Sichtbereichs (z. B. breiteres Handy im Querformat) */
+  Art.setView = function (w, h) {
+    W = w; H = h;
+    // Vignette
     vignetteCanvas.width = W; vignetteCanvas.height = H;
     const v = vignetteCanvas.getContext('2d');
-    const g = v.createRadialGradient(W / 2, H / 2, H * 0.45, W / 2, H / 2, W * 0.72);
+    const g = v.createRadialGradient(W / 2, H / 2, H * 0.45, W / 2, H / 2, Math.max(W, H * 16 / 9) * 0.72);
     g.addColorStop(0, 'rgba(30,29,27,0)');
     g.addColorStop(1, 'rgba(30,29,27,0.22)');
     v.fillStyle = g; v.fillRect(0, 0, W, H);
-
-    fogCanvas = document.createElement('canvas');
     fogCanvas.width = W; fogCanvas.height = H;
   };
 

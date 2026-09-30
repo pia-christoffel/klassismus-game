@@ -554,10 +554,35 @@ body::after {
 /* --- Schmale Bildschirme ------------------------------------------------------ */
 @media (max-width: 760px) {
   .rv-metaphors { grid-template-columns: 1fr; }
-  .rv-pack-wrap { --k: 0.42; }
+  .cmp-cols { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .rv-tag { white-space: normal; max-width: 44vw; font-size: 13px; line-height: 1.2; }
   .stats { grid-template-columns: repeat(2, 1fr); }
   .stats > div:nth-child(3) { border-left: 0; }
-  .cmp-cols { grid-template-columns: 1fr; }
+}
+/* Niedrige Bildschirme (Handy im Querformat) */
+@media (max-height: 480px) {
+  .screen { padding: 14px 16px 18px; }
+  .title { font-size: 64px; margin: 4px 0 2px; }
+  .start-wrap { gap: 10px; }
+  .char-canvas { height: 118px; }
+  .summit-wrap { gap: 10px; }
+  .big { font-size: 46px; }
+  .stats > div { padding: 6px 8px; }
+  .stats dd { font-size: 26px; }
+  .q { font-size: 18px; margin-bottom: 8px; }
+  .opt { padding: 7px 12px; font-size: 14px; }
+  .rv-line { font-size: 24px; }
+  .rv-title { font-size: 48px; }
+  .rv-metaphors li { padding: 3px 0; font-size: 12px; }
+  .rv-sub { font-size: 34px; }
+  .rv-pack-wrap { height: 190px; }
+  .rv-tag { font-size: 13px; padding: 4px 10px 4px 22px; }
+  .cmp-row { padding: 2px 0 1px; }
+  .cmp-fig { width: 40px; height: 50px; }
+  .end-scene { height: 130px; }
+  .end-lines h1 { font-size: 34px; }
 }
 @media (max-height: 760px) and (min-width: 761px) {
   .rv-metaphors li { padding: 4px 0; }
@@ -569,6 +594,10 @@ body::after {
 .touch body { touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .touch #stage { touch-action: none; }
 .touch .hud-controls { display: none; }
+/* Notch / abgerundete Ecken im Querformat */
+.touch .hud-left { left: max(calc(var(--hu) * 16), env(safe-area-inset-left)); }
+.touch .hud-right { right: max(calc(var(--hu) * 16), env(safe-area-inset-right)); }
+.touch .hud-map, .touch .hud-compass { right: max(calc(var(--hu) * 16), env(safe-area-inset-right)); }
 .touch .hud-prompt { bottom: calc(var(--hu) * 14); }
 .touch .hud-toast { bottom: calc(var(--hu) * 50); }
 .touch .hud-compass { top: calc(var(--hu) * 64); bottom: auto; right: calc(var(--hu) * 16); }

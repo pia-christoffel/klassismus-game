@@ -25,8 +25,9 @@ window.BERG = window.BERG || {};
   const T = BERG.TEXT;
   const P = C.physics;
   const S = C.stamina;
-  const W = C.view.width;
-  const H = C.view.height;
+  // Sichtbereich in Spielpixeln – passt sich ans Fenster an (siehe resize)
+  let W = C.view.width;
+  let H = C.view.height;
   const STEP = 1 / 120; // feste Physik-Schrittweite
   const DEBUG = /[?&]debug/.test(location.search);
   BERG.DEBUG = DEBUG;
@@ -107,6 +108,20 @@ window.BERG = window.BERG || {};
     /** Spielfeld an Fenstergröße anpassen (16:9, scharf auf Retina) */
     resize() {
       const stage = this.canvas.parentElement;
+      // Der Ausschnitt passt sich ans Fenster an, die Spielfigur bleibt gleich groß:
+      //  breiter als 16:9 → Höhe 540 bleibt, man sieht mehr in der Breite
+      //  höher als 16:9   → Breite 960 bleibt, man sieht mehr nach oben/unten
+      // Grenzen (maxWidth / maxHeight in config.js) verhindern Extremformate.
+      const aspect = window.innerWidth / window.innerHeight;
+      const V = C.view;
+      if (aspect >= V.width / V.height) {
+        H = V.height;
+        W = Math.round(Math.min(H * aspect, V.maxWidth));
+      } else {
+        W = V.width;
+        H = Math.round(Math.min(W / aspect, V.maxHeight));
+      }
+      BERG.Art.setView(W, H);
       const w = Math.min(window.innerWidth, (window.innerHeight * W) / H);
       const h = (w * H) / W;
       stage.style.width = w + 'px';
