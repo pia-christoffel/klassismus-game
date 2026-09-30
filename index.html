@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Der Berg</title>
+  <!-- Schriften (ohne Internet greifen die Fallbacks in style.css) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Spielfeld -->
+  <div id="stage">
+    <canvas id="game"></canvas>
+    <div id="hud"></div>
+    <div id="work"></div>
+  </div>
+
+  <!-- Screens (Inhalte werden aus js/texts.js erzeugt) -->
+  <section id="screen-start" class="screen"></section>
+  <section id="screen-summit" class="screen"></section>
+  <section id="screen-reveal" class="screen dark"></section>
+  <section id="screen-end" class="screen"></section>
+
+  <!-- Reihenfolge ist wichtig -->
+  <script src="js/config.js"></script>
+  <script src="js/texts.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/level.js"></script>
+  <script src="js/hud.js"></script>
+  <script src="js/work.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/reveal.js"></script>
+  <script src="js/screens.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
