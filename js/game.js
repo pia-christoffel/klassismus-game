@@ -71,6 +71,12 @@ window.BERG = window.BERG || {};
       if (DEBUG && /^(Digit\d|KeyK|KeyM|KeyN)$/.test(code)) return code;
       return null;
     }
+    /** Bildschirm-Tasten (touch.js) nutzen dieselbe Eingabe wie die Tastatur */
+    touch(k, on) {
+      if (!this.enabled) { this.down[k] = false; return; }
+      if (on && !this.down[k]) this.pressed[k] = true;
+      this.down[k] = on;
+    }
     take(k) {
       if (this.pressed[k]) { this.pressed[k] = false; return true; }
       return false;
@@ -106,6 +112,8 @@ window.BERG = window.BERG || {};
       stage.style.width = w + 'px';
       stage.style.height = h + 'px';
       stage.style.setProperty('--u', w / W + 'px');
+      // HUD-Schrift auf dem Handy etwas größer, damit sie lesbar bleibt
+      stage.style.setProperty('--hu', (w / W) * (BERG.isTouch ? 1.2 : 1) + 'px');
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       this.canvas.width = Math.round(w * dpr);
       this.canvas.height = Math.round(h * dpr);
@@ -193,7 +201,9 @@ window.BERG = window.BERG || {};
       }
       if (DEBUG) this.debugKeys();
 
-      if (!this.paused) {
+      // Handy im Hochformat: anhalten, bis gedreht wird
+      if (!this.paused && BERG.Touch.blocked()) this.acc = 0;
+      else if (!this.paused) {
         this.acc += dt;
         let n = 0;
         while (this.acc >= STEP && n < 14 && this.running) { this.update(STEP); this.acc -= STEP; n++; }
@@ -410,16 +420,18 @@ window.BERG = window.BERG || {};
 
       // E: Hütte oder Proviant
       this.prompt = '';
+      this.promptKey = '';
       const cx = p.x + p.w / 2;
       const hz = this.level.hut.zone;
       if (p.onGround && cx > hz.x1 && cx < hz.x2) {
         this.prompt = T.prompts.hut;
+        this.promptKey = 'hut';
         if (usePressed) { this.startRest(); return; }
       } else if (p.provisions > 0 && p.stamina < S.max - 10) {
-        if (p.stamina < 60) this.prompt = T.prompts.eat;
+        if (p.stamina < 60) { this.prompt = T.prompts.eat; this.promptKey = 'eat'; }
         if (usePressed) this.eat();
       }
-      if (!this.prompt && !this.hasSat && p.stamina < 25 && !p.exhausted) this.prompt = T.prompts.sit;
+      if (!this.prompt && !this.hasSat && p.stamina < 25 && !p.exhausted) { this.prompt = T.prompts.sit; this.promptKey = 'sit'; }
 
       this.checkTriggers();
     }

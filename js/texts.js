@@ -48,6 +48,23 @@ BERG.TEXT = {
     eat: 'E  essen',
     sit: 'S halten  verschnaufen',
   },
+  // dieselben Hinweise auf dem Handy (die passende Taste leuchtet zusätzlich auf)
+  promptsTouch: {
+    hut: 'Rasten: „benutzen“ tippen',
+    eat: 'Essen: „benutzen“ tippen',
+    sit: '„verschnaufen“ gedrückt halten',
+  },
+
+  // --- Handy / Touch -----------------------------------------------------------
+  touch: {
+    jump: 'springen',
+    use: 'benutzen',
+    sit: 'ver\u00ADschnaufen', // \u00AD = weiches Trennzeichen (bricht im Knopf um)
+    pause: 'Pause',
+    resume: 'Tippen zum Fortsetzen',
+    rotate: 'Dreh dein Handy ins Querformat.',
+    startHint: 'Gesteuert wird über die Tasten am Bildschirmrand. Am besten im Querformat spielen.',
+  },
 
   // --- Kurze, neutrale Meldungen während des Spiels --------------------------
   toasts: {
@@ -81,10 +98,12 @@ BERG.TEXT = {
     call: 'Dein Schuh ist aufgegangen.',
     lace: 'Schnürsenkel einfädeln',
     laceHint: 'Ösen anklicken  ·  oder A / D',
+    laceHintTouch: 'Linke oder rechte Schuhseite antippen',
     laceHelp: 'Tipp: immer abwechselnd, von unten nach oben.',
     bow: 'Schleife binden',
     bowWatch: 'Merk dir die Reihenfolge …',
     bowHint: 'Nachmachen  ·  Pfeiltasten oder klicken',
+    bowHintTouch: 'Nachmachen  ·  Pfeile antippen',
     wrong: 'Nicht so.',
     done: 'Fest verschnürt.',
   },

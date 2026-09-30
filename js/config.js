@@ -150,3 +150,12 @@ BERG.CONFIG = {
   altitude: { base: 1150, metersPerPixel: 0.9 },
   camera: { lerp: 6, lookAhead: 90, verticalAnchor: 0.6 },
 };
+
+// -----------------------------------------------------------------------------
+// Handy / Tablet: Touch-Geräte bekommen Bildschirm-Tasten. Desktop bleibt
+// unverändert. Zum Testen am Rechner: index.html?touch
+// -----------------------------------------------------------------------------
+BERG.isTouch =
+  /[?&]touch/.test(location.search) ||
+  (window.matchMedia('(pointer: coarse)').matches && window.matchMedia('(hover: none)').matches);
+document.documentElement.classList.toggle('touch', BERG.isTouch);

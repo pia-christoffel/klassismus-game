@@ -20,6 +20,7 @@ BERG.Flow = (function () {
   function init() {
     game = new BERG.Game($('#game'));
     BERG.game = game; // für Tests in der Konsole
+    BERG.Touch.init(game);
     buildStart();
     showStart();
   }
@@ -28,6 +29,7 @@ BERG.Flow = (function () {
   function show(id) {
     document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.id === id));
     $('#stage').classList.toggle('active', id === 'stage');
+    document.body.classList.toggle('playing', id === 'stage');
     if (keyHandler) { window.removeEventListener('keydown', keyHandler); keyHandler = null; }
     cancelAnimationFrame(startAnim);
     cancelAnimationFrame(endAnim);
@@ -76,7 +78,7 @@ BERG.Flow = (function () {
         </header>
         <div class="chars">${card('A')}${card('B')}</div>
         <p class="goal">${S.goal}</p>
-        <p class="controls">${S.controls.map(([keys, v]) => `<span>${keys.map((k) => `<kbd>${k}</kbd>`).join('')} ${v}</span>`).join('')}</p>
+        <p class="controls">${BERG.isTouch ? T.touch.startHint : S.controls.map(([keys, v]) => `<span>${keys.map((k) => `<kbd>${k}</kbd>`).join('')} ${v}</span>`).join('')}</p>
       </div>`;
     document.querySelectorAll('.char-card').forEach((b) =>
       b.addEventListener('click', () => chooseCharacter(b.dataset.char)));

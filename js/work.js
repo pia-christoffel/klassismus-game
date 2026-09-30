@@ -97,9 +97,11 @@ BERG.Work = (function () {
   // Schuh (Draufsicht, Zehen unten)
   // ---------------------------------------------------------------------------
   function buildShoe() {
-    let eyelets = '';
+    let eyelets = '', hits = '';
     for (let r = 0; r < s.rows; r++) {
       ['L', 'R'].forEach((side) => {
+        // unsichtbare, größere Tippfläche + sichtbare Öse
+        hits += `<circle class="eyelet-hit" data-side="${side}" data-row="${r}" cx="${COL[side]}" cy="${rowY(r)}" r="19"/>`;
         eyelets += `<circle class="eyelet${r === 0 ? ' used' : ''}" data-side="${side}" data-row="${r}" cx="${COL[side]}" cy="${rowY(r)}" r="8"/>`;
       });
     }
@@ -120,13 +122,23 @@ BERG.Work = (function () {
           <path class="bow-part tail" d="M2 4 Q16 24 26 38"/>
           <circle class="bow-part knot" r="5"/>
         </g>
+        ${hits}
         ${eyelets}
       </svg>`;
     el.lace = el.shoeWrap.querySelector('[data-w2="lace"]');
     el.bow = el.shoeWrap.querySelector('[data-w2="bow"]');
     el.shoe = el.shoeWrap.querySelector('.shoe');
-    el.shoeWrap.querySelectorAll('.eyelet').forEach((c) =>
-      c.addEventListener('click', () => laceInput(c.dataset.side, +c.dataset.row)));
+    if (BERG.isTouch) {
+      // Handy: Ösen sind für Finger zu klein → linke / rechte Schuhhälfte antippen.
+      // Der Schnürsenkel geht dann in die unterste freie Öse dieser Seite.
+      el.shoe.addEventListener('click', (e) => {
+        const r = el.shoe.getBoundingClientRect();
+        laceInput(e.clientX < r.left + r.width / 2 ? 'L' : 'R');
+      });
+    } else {
+      el.shoeWrap.querySelectorAll('.eyelet, .eyelet-hit').forEach((c) =>
+        c.addEventListener('click', () => laceInput(c.dataset.side, +c.dataset.row)));
+    }
     drawLace();
     showBow(0);
   }
@@ -156,7 +168,7 @@ BERG.Work = (function () {
     phase('task');
     el.title.textContent = T.lace;
     el.count.textContent = `0 / ${s.total}`;
-    hint(T.laceHint);
+    hint(BERG.isTouch ? T.laceHintTouch : T.laceHint);
   }
 
   function lowestFree(side) {
@@ -183,7 +195,7 @@ BERG.Work = (function () {
     node.classList.add('used');
     drawLace();
     el.count.textContent = `${s.steps} / ${s.total}`;
-    hint(T.laceHint);
+    hint(BERG.isTouch ? T.laceHintTouch : T.laceHint);
     if (s.steps >= s.total) later(startBow, 450);
   }
 
@@ -206,7 +218,7 @@ BERG.Work = (function () {
     el.count.textContent = `0 / ${s.seq.length}`;
     hint(T.bowWatch);
     s.seq.forEach((d, i) => later(() => flash(d, 'demo'), i * 620));
-    later(() => { s.stage = 'bow-input'; hint(T.bowHint); }, s.seq.length * 620);
+    later(() => { s.stage = 'bow-input'; hint(BERG.isTouch ? T.bowHintTouch : T.bowHint); }, s.seq.length * 620);
   }
 
   function flash(dir, cls) {

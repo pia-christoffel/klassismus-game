@@ -39,9 +39,11 @@ BERG.HUD = (function () {
       <div class="hud-controls" data-k="controls">${T.start.controls.map(([keys, v]) => `<span>${keys.map((k) => `<kbd>${k}</kbd>`).join('')} ${v}</span>`).join('')}</div>
       <div class="hud-intro" data-k="intro"></div>
       <div class="hud-fade" data-k="fade"></div>
-      <div class="hud-pause" data-k="pause"><div><h2>${T.hud.paused}</h2><p>${T.hud.pausedHint}</p></div></div>
+      <div class="hud-pause" data-k="pause"><div><h2>${T.hud.paused}</h2><p>${BERG.isTouch ? T.touch.resume : T.hud.pausedHint}</p></div></div>
     `;
     root.querySelectorAll('[data-k]').forEach((n) => (el[n.dataset.k] = n));
+    // Tippen/Klicken auf „Pause“ setzt fort
+    el.pause.addEventListener('click', () => { if (BERG.game) BERG.game.paused = false; });
   }
 
   function fmtTime(s) {
@@ -100,7 +102,8 @@ BERG.HUD = (function () {
     // Aktionen & Legende nur beim Spielen – nie über dem Schuhe-binden-Rätsel
     const inWork = game.mode === 'work';
     set('inWork', inWork, (v) => root.classList.toggle('in-work', v));
-    set('prompt', game.mode === 'play' ? game.prompt || '' : '', (v) => {
+    const promptText = BERG.isTouch && game.promptKey ? T.promptsTouch[game.promptKey] : game.prompt;
+    set('prompt', game.mode === 'play' ? promptText || '' : '', (v) => {
       el.prompt.textContent = v;
       el.prompt.classList.toggle('show', !!v);
     });
@@ -108,6 +111,7 @@ BERG.HUD = (function () {
     set('fade', game.fade.toFixed(2), (v) => (el.fade.style.opacity = v));
     set('fadeLight', game.fadeLight, (v) => el.fade.classList.toggle('light', v));
     set('paused', game.paused, (v) => el.pause.classList.toggle('show', v));
+    BERG.Touch.update(game);
   }
 
   function toast(text, duration) {
