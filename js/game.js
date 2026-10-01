@@ -105,25 +105,31 @@ window.BERG = window.BERG || {};
       document.addEventListener('visibilitychange', () => document.hidden && autoPause());
     }
 
-    /** Spielfeld an Fenstergröße anpassen (16:9, scharf auf Retina) */
+    /** Spielfeld füllt immer das ganze Fenster (scharf auf Retina) */
     resize() {
       const stage = this.canvas.parentElement;
+      const vw = window.innerWidth, vh = window.innerHeight;
       // Der Ausschnitt passt sich ans Fenster an, die Spielfigur bleibt gleich groß:
       //  breiter als 16:9 → Höhe 540 bleibt, man sieht mehr in der Breite
       //  höher als 16:9   → Breite 960 bleibt, man sieht mehr nach oben/unten
-      // Grenzen (maxWidth / maxHeight in config.js) verhindern Extremformate.
-      const aspect = window.innerWidth / window.innerHeight;
+      // Ist eine Grenze (maxWidth / maxHeight) erreicht, wird der Ausschnitt in
+      // der anderen Richtung etwas kleiner – so gibt es nie Ränder.
+      const aspect = vw / vh;
       const V = C.view;
       if (aspect >= V.width / V.height) {
         H = V.height;
-        W = Math.round(Math.min(H * aspect, V.maxWidth));
+        W = H * aspect;
+        if (W > V.maxWidth) { W = V.maxWidth; H = W / aspect; }
       } else {
         W = V.width;
-        H = Math.round(Math.min(W / aspect, V.maxHeight));
+        H = W / aspect;
+        if (H > V.maxHeight) { H = V.maxHeight; W = H * aspect; }
       }
+      W = Math.round(W);
+      H = Math.round(H);
       BERG.Art.setView(W, H);
-      const w = Math.min(window.innerWidth, (window.innerHeight * W) / H);
-      const h = (w * H) / W;
+      // Bildschirmgröße 1:1 übernehmen (keine Rundungs-Ränder)
+      const w = vw, h = vh;
       stage.style.width = w + 'px';
       stage.style.height = h + 'px';
       stage.style.setProperty('--u', w / W + 'px');
@@ -133,6 +139,7 @@ window.BERG = window.BERG || {};
       this.canvas.width = Math.round(w * dpr);
       this.canvas.height = Math.round(h * dpr);
       this.scale = this.canvas.width / W;
+      this.scaleY = this.canvas.height / H;
     }
 
     /** Neuen Durchgang starten */
@@ -788,7 +795,7 @@ window.BERG = window.BERG || {};
       const A = BERG.Art;
       const L = this.level;
       const p = this.player;
-      ctx.setTransform(this.scale, 0, 0, this.scale, 0, 0);
+      ctx.setTransform(this.scale, 0, 0, this.scaleY, 0, 0);
       ctx.imageSmoothingEnabled = true;
 
       const cam = { x: Math.round(this.cam.x * 2) / 2, y: Math.round(this.cam.y * 2) / 2 };

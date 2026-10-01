@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
 
@@ -31,18 +31,20 @@
   <section id="screen-reveal" class="screen dark"></section>
   <section id="screen-end" class="screen"></section>
 
-  <!-- Reihenfolge ist wichtig -->
-  <script src="js/config.js"></script>
-  <script src="js/texts.js"></script>
-  <script src="js/assets.js"></script>
-  <script src="js/art.js"></script>
-  <script src="js/level.js"></script>
-  <script src="js/hud.js"></script>
-  <script src="js/work.js"></script>
-  <script src="js/touch.js"></script>
-  <script src="js/game.js"></script>
-  <script src="js/reveal.js"></script>
-  <script src="js/screens.js"></script>
-  <script src="js/main.js"></script>
+  <!-- Reihenfolge ist wichtig.
+       ?v=3: Versionsnummer gegen veralteten Browser-Cache. Nach Änderungen
+       einfach überall hochzählen (v=4, v=5 …), dann laden alle sofort die neue Version. -->
+  <script src="js/config.js?v=3"></script>
+  <script src="js/texts.js?v=3"></script>
+  <script src="js/assets.js?v=3"></script>
+  <script src="js/art.js?v=3"></script>
+  <script src="js/level.js?v=3"></script>
+  <script src="js/hud.js?v=3"></script>
+  <script src="js/work.js?v=3"></script>
+  <script src="js/touch.js?v=3"></script>
+  <script src="js/game.js?v=3"></script>
+  <script src="js/reveal.js?v=3"></script>
+  <script src="js/screens.js?v=3"></script>
+  <script src="js/main.js?v=3"></script>
 </body>
 </html>

@@ -19,8 +19,8 @@ BERG.CONFIG = {
   // Fenster wird er breiter oder höher – Figur und Sprünge bleiben gleich groß.
   view: {
     width: 960, height: 540,
-    maxWidth: 1400,  // breiteste Ansicht (sehr breite Fenster bekommen sonst Ränder)
-    maxHeight: 1080, // höchste Ansicht (nur sehr hohe, schmale Fenster bekommen Ränder)
+    maxWidth: 1400,  // breiteste Ansicht (noch breitere Fenster zeigen dafür etwas weniger Höhe)
+    maxHeight: 1080, // höchste Ansicht (noch höhere Fenster zeigen dafür etwas weniger Breite)
   },
 
   // ---------------------------------------------------------------------------
