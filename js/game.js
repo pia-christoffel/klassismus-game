@@ -13,6 +13,9 @@
      [SCHUHE]     Unterbrechung „Schuh ist offen“      → startWork() / work.js
                   (= Nebenjob), Timer läuft weiter
      [STURM]      Wind, Rutschigkeit, Sicht            → updateEnv()
+     [AUSRUTSCHER] nur mit einfachen Schuhen (A)       → startSlip()
+     [LEBEN]      Herzen: Absturz ohne Seil = −1 Leben → startFall(), updateFalling()
+                  bei 0 Leben ganz von vorne
      [HÜTTE]      Rast & Unterstützung                 → startRest(), updateResting()
      [ZUFALL]     Ereignisse für beide gleich          → randomEvent()
      [TRACKING]   Zeit, Stürze, Umwege, Pausen …       → this.stats
@@ -69,7 +72,7 @@ window.BERG = window.BERG || {};
         case 'KeyE': return 'use';
         case 'Escape': case 'KeyP': return 'pause';
       }
-      if (DEBUG && /^(Digit\d|KeyK|KeyM|KeyN)$/.test(code)) return code;
+      if (DEBUG && /^(Digit\d|KeyK|KeyM|KeyN|KeyL)$/.test(code)) return code;
       return null;
     }
     /** Bildschirm-Tasten (touch.js) nutzen dieselbe Eingabe wie die Tastatur */
@@ -158,7 +161,8 @@ window.BERG = window.BERG || {};
         coyote: 0, jumpBuffer: 0, jumpCut: true,
         stamina: S.max, exhausted: false, sitting: false, sitT: 0, sitCounted: false, idleT: 0,
         phase: 0,
-        slipT: 0, slipTotal: 0, // [ZUFALL] Ausrutscher
+        slipT: 0, slipTotal: 0, // [AUSRUTSCHER]
+        lives: C.lives.max,         // [LEBEN]
         provisions: this.char.provisions,
         load: this.char.load,       // [RUCKSACK] aktuelles Gewicht
         relieved: false, hutFood: false,
@@ -170,6 +174,7 @@ window.BERG = window.BERG || {};
       this.stats = {
         char: charId, time: 0, falls: 0, detours: 0, pauses: 0, restTime: 0,
         workShifts: 0, workTime: 0, energy: 0, hutVisits: 0, provisionsUsed: 0,
+        slips: 0, livesLost: 0, restarts: 0,
         events: [], gates: Object.assign({}, L.gates),
       };
 
@@ -338,7 +343,7 @@ window.BERG = window.BERG || {};
       const jumpPressed = I.take('jump');
       const usePressed = I.take('use');
 
-      // [ZUFALL] Ausrutscher: kurz hingefallen, keine Eingaben
+      // [AUSRUTSCHER] kurz hingefallen, keine Eingaben
       const slipping = p.slipT > 0 && p.onGround;
       if (slipping) {
         p.slipT -= dt;
@@ -545,6 +550,14 @@ window.BERG = window.BERG || {};
         if (!this.triggered.has(id) && cx >= e.x) { this.triggered.add(id); this.randomEvent(); }
       });
 
+      // [AUSRUTSCHER] nur mit einfachen Schuhen (slips: true)
+      if (this.char.slips) {
+        L.slipTriggers.forEach((e, i) => {
+          const id = 'slip' + i;
+          if (!this.triggered.has(id) && cx >= e.x && p.onGround) { this.triggered.add(id); this.startSlip(); }
+        });
+      }
+
       // Atmosphäre
       if (this.env.fog > 0.3 && !this.triggered.has('fogMsg')) { this.triggered.add('fogMsg'); BERG.HUD.toast(T.toasts.fog); }
       if (this.env.storm > 0.25 && !this.triggered.has('stormMsg')) { this.triggered.add('stormMsg'); BERG.HUD.toast(T.toasts.storm); }
@@ -571,14 +584,20 @@ window.BERG = window.BERG || {};
       const e = pool[Math.floor(Math.random() * pool.length)];
       if (e.stamina > 0) this.regen(e.stamina);
       else this.player.stamina = Math.max(0, this.player.stamina + e.stamina);
-      if (e.slip) {
-        // kurz hinfallen (setzt ein, sobald die Figur Boden unter den Füßen hat)
-        this.player.slipT = C.events.slipDuration;
-        this.player.slipTotal = C.events.slipDuration;
-        this.dust(this.player.x + this.player.w / 2, this.player.y + this.player.h, 6);
-      }
       this.stats.events.push(e.id);
       BERG.HUD.toast(T.events[e.id], 3.2);
+    }
+
+    // [AUSRUTSCHER] einfache Schuhe: kurz hinfallen, etwas Ausdauer weg
+    startSlip() {
+      const p = this.player;
+      p.slipT = C.slip.duration;
+      p.slipTotal = C.slip.duration;
+      p.stamina = Math.max(0, p.stamina - C.slip.staminaCost);
+      p.sitting = false;
+      this.stats.slips++;
+      this.dust(p.x + p.w / 2, p.y + p.h, 6);
+      BERG.HUD.toast(T.toasts.slip, 2.6);
     }
 
     eat() {
@@ -604,10 +623,15 @@ window.BERG = window.BERG || {};
         this.setMode('caught');
         BERG.HUD.toast(T.toasts.ropeHolds);
       } else {
-        // Kein Seil: weiter Sturz, zurück zum letzten Checkpoint
+        // Kein Seil: weiter Sturz, ein Leben weniger, zurück zum letzten Checkpoint.
+        // [LEBEN] Ist das letzte Leben weg, geht es ganz von vorne los.
+        p.lives = Math.max(0, p.lives - 1);
+        this.stats.livesLost++;
+        this.fallRestart = p.lives === 0;
         this.fallRespawned = false;
         this.setMode('falling');
-        BERG.HUD.toast(T.toasts.fall);
+        BERG.HUD.toast(this.fallRestart ? T.toasts.fallLast : T.toasts.fall);
+        BERG.HUD.loseLife(p.lives);
       }
     }
 
@@ -641,6 +665,8 @@ window.BERG = window.BERG || {};
     updateFalling(dt) {
       const p = this.player;
       const t = this.modeT;
+      // [LEBEN] letztes Leben verloren: Blende bleibt länger stehen
+      const hold = this.fallRestart ? C.lives.restartHold : 0;
       if (!this.fallRespawned) {
         p.vy = Math.min(p.vy + P.gravity * dt, P.maxFallSpeed);
         p.y += p.vy * dt;
@@ -649,13 +675,23 @@ window.BERG = window.BERG || {};
       if (t > 0.75 && t <= 1.25) this.fade = Math.min(1, (t - 0.75) / 0.45);
       if (t > 1.25 && !this.fallRespawned) {
         this.fallRespawned = true;
+        if (this.fallRestart) {
+          // Ganz von vorne: zurück an den Fuß des Bergs, Leben wieder voll
+          p.cp = 0;
+          p.lives = C.lives.max;
+          p.stamina = S.max;
+          p.anchor = null;
+          this.stats.restarts++;
+          BERG.HUD.restart(hold + 0.6);
+        } else {
+          BERG.HUD.toast(T.toasts.respawnFar, 3);
+        }
         const cp = this.level.checkpoints[p.cp];
         this.placePlayer(cp.x, cp.y);
         this.snapCamera();
-        BERG.HUD.toast(T.toasts.respawnFar, 3);
       }
-      if (t > 1.7) this.fade = Math.max(0, 1 - (t - 1.7) / 0.5);
-      if (t > 2.2) { this.fade = 0; this.setMode('play'); }
+      if (t > 1.7 + hold) this.fade = Math.max(0, 1 - (t - 1.7 - hold) / 0.5);
+      if (t > 2.2 + hold) { this.fade = 0; this.fallRestart = false; this.setMode('play'); }
     }
 
     placePlayer(x, feetY) {
@@ -876,7 +912,8 @@ window.BERG = window.BERG || {};
     // -------------------------------------------------------------------------
     // DEBUG  (index.html?debug)
     //   1–5 Checkpoints · 6 Grat · 7 Nebel · 8 Sturm · 9 Gipfel
-    //   M volle Ausdauer · N leere Ausdauer · K Durchgang sofort beenden
+    //   M volle Ausdauer · N leere Ausdauer · L ein Leben weniger
+    //   K Durchgang sofort beenden
     // -------------------------------------------------------------------------
     debugKeys() {
       const I = this.input;
@@ -888,6 +925,7 @@ window.BERG = window.BERG || {};
       for (const k in jumps) if (I.take(k)) { this.placePlayer(jumps[k][0], jumps[k][1]); this.snapCamera(); }
       if (I.take('KeyM')) this.player.stamina = S.max;
       if (I.take('KeyN')) this.player.stamina = 3;
+      if (I.take('KeyL') && this.player.lives > 1) { this.player.lives--; BERG.HUD.loseLife(this.player.lives); }
       if (I.take('KeyK')) { this.stop(); this.onFinish && this.onFinish(this.stats); }
     }
 
@@ -905,7 +943,7 @@ window.BERG = window.BERG || {};
       ctx.strokeRect(p.x, p.y, p.w, p.h);
       ctx.fillStyle = '#000';
       ctx.font = '11px monospace';
-      ctx.fillText(`${this.mode}  x${Math.round(p.x)} y${Math.round(p.y + p.h)}  st${p.stamina.toFixed(0)} load${p.load.toFixed(2)}  cp${p.cp}  fork:${L.gates.fork} fog:${L.gates.fog}`, p.x - 120, p.y - 30);
+      ctx.fillText(`${this.mode}  x${Math.round(p.x)} y${Math.round(p.y + p.h)}  st${p.stamina.toFixed(0)} load${p.load.toFixed(2)}  cp${p.cp}  lives${p.lives}  fork:${L.gates.fork} fog:${L.gates.fog}`, p.x - 120, p.y - 30);
     }
   }
 

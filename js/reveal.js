@@ -198,6 +198,9 @@ BERG.Reveal = (function () {
     const metrics = [
       ['time', (s) => s.time, (v) => BERG.HUD.fmtTime(v)],
       ['falls', (s) => s.falls, String],
+      ['livesLost', (s) => s.livesLost || 0, String],
+      ['restarts', (s) => s.restarts || 0, String],
+      ['slips', (s) => s.slips || 0, String],
       ['detours', (s) => s.detours, String],
       ['pauses', (s) => s.pauses, String],
       ['workShifts', (s) => s.workShifts, String],

@@ -253,6 +253,8 @@ BERG.Level = (function () {
       hut: { x: 5620, y: -1440, w: 150, zone: { x1: 5590, x2: 5800 } },
       workTriggers: [{ x: 4640 }, { x: 10640 }],
       eventTriggers: [{ x: 900 }, { x: 6200 }, { x: 12900 }],
+      // Ausrutscher (nur einfache Schuhe): Steilhang, nach der Hütte, nach dem Sturm
+      slipTriggers: [{ x: 4300 }, { x: 6700 }, { x: 12700 }],
       summit: { x: 13560, flagX: 13650 },
     };
   }

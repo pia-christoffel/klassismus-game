@@ -26,7 +26,7 @@ lässt sich auf dem Handy nicht einfach öffnen.
 
 **Debug-Modus:** `index.html?debug`. Zeigt Hitboxen und erlaubt Sprünge im Level:
 `1`–`5` Checkpoints · `6` Grat · `7` Nebel · `8` Sturm · `9` Gipfel ·
-`M` volle / `N` leere Ausdauer · `K` Durchgang sofort beenden.
+`M` volle / `N` leere Ausdauer · `L` ein Leben weniger · `K` Durchgang sofort beenden.
 
 ## Ablauf
 
@@ -59,10 +59,12 @@ In `js/game.js` sind die Mechaniken mit Suchbegriffen markiert:
 | **[SEIL]** | `startFall()`, `updateCaught()` | Gleicher Absturz: B hängt kurz im Seil und steht wieder auf dem letzten Pfeiler. A stürzt ab und beginnt am letzten Checkpoint (Grat → zurück zur Hütte). |
 | **[RUCKSACK]** | `updatePlay()`, `drain()` | Jeder Schritt/Sprung kostet Ausdauer × Rucksackgewicht. Unter 35 % wird man langsamer und springt kürzer, bei 0 muss man verschnaufen. |
 | **[SCHUHE]** | `startWork()`, `work.js` | Nur A (einfache Schuhe), 2×: „Dein Schuh ist aufgegangen.“ → Rätsel 1: Schnürsenkel einfädeln (Regel „abwechselnd, von unten nach oben“ wird nicht verraten, nach 2 Fehlern kommt ein Tipp) → Rätsel 2: Schleife binden (Pfeil-Reihenfolge merken, 4 bzw. 5 Schritte) → „Fest verschnürt.“ Der Timer läuft weiter, danach −25 Ausdauer. Die zweite Unterbrechung kommt direkt vor dem Sturm. Im Reveal: Schuhe binden = Nebenjob / Verpflichtungen außerhalb der Schule. |
+| **[LEBEN]** | `startFall()`, `updateFalling()`, `hud.js` | Beide haben 3 Herzen (`lives.max`). Ein Absturz ohne Seil kostet ein Leben. B wird vom Seil aufgefangen und verliert deshalb keins, die Herzen betreffen also praktisch nur A. Sind alle weg: Schwarzblende „Keine Leben mehr. Du musst ganz von vorne anfangen.“, Neustart am Fuß des Bergs mit vollen Herzen, der Timer läuft weiter. Im Reveal: Leben = zweite Chancen. |
+| **[AUSRUTSCHER]** | `startSlip()` | Nur A (einfache Schuhe, `slips: true`): An 3 festen Stellen (`slipTriggers` in `level.js`: Steilhang, nach der Hütte, nach dem Sturm) rutscht A aus, liegt kurz am Boden und verliert Ausdauer. Im Reveal: Ausrutscher = kleine Rückschläge, die mit schlechterer Ausrüstung öfter passieren. |
 | **[STURM]** | `updateEnv()` | Für beide gleich: Böen gegen die Laufrichtung, Regen, schlechtere Sicht, rutschiger Boden. |
 | **[HÜTTE]** | `startRest()`, `updateResting()` | Für alle offen, Ausdauer wird voll. Beim Proviant bekommt B (gut ausgerüstet) etwas mehr: +2 statt +1. Hilfe kommt also nicht gleich an. Das wird im Reveal bei der Schutzhütte aufgegriffen. Pro Charakter einstellbar über `hutProvisions` und `hutRelief` (Rucksack leichter, derzeit 0). |
 | **[ZUFALL]** | `randomEvent()` | 3 Auslösepunkte, für beide gleiche Wahrscheinlichkeiten (±10–25 Ausdauer). |
-| **[TRACKING]** | `this.stats` | Zeit, Stürze, Umwege, Pausen (Erschöpfung oder > 1,2 s verschnaufen), Rastzeit, Unterbrechungen, Zeit für Unterbrechungen, Energieverbrauch, Hüttenbesuche, Ereignisse |
+| **[TRACKING]** | `this.stats` | Zeit, Stürze, verlorene Leben, Neustarts von vorne, Ausrutscher, Umwege, Pausen (Erschöpfung oder > 1,2 s verschnaufen), Rastzeit, Unterbrechungen, Zeit für Unterbrechungen, Energieverbrauch, Hüttenbesuche, Ereignisse |
 
 ## Texte ändern
 
@@ -74,16 +76,19 @@ Die Metaphern im Reveal (`reveal.metaphors`) lassen sich dort ergänzen, umsorti
 
 - **Grundwerte (für beide gleich):** `physics` (Tempo, Sprungkraft …) und `stamina` (Verbrauch, Erholung, ab wann es schwer wird).
 - **Unterschied A/B:** `characters.A` / `characters.B`:
-  - `load`: Rucksackgewicht (A: 1.7), Multiplikator auf den Verbrauch
+  - `load`: Rucksackgewicht (A: 1.8, B: 1.0), Multiplikator auf den Verbrauch
   - `regenMultiplier`: Erholung (A: 0.65)
   - `hutProvisions`, `hutRelief`: Unterstützung in der Hütte
   - `grip`: Halt im Sturm
+  - `slips`: Ausrutscher an festen Stellen (nur A)
   - `map`, `compass`, `rope`, `job`: Mechanik an/aus
   - `provisions`: Proviant zu Beginn
 - **Unterbrechung (Schuhe binden):** `work` (Anzahl Ösen-Reihen, Länge der Schleifen-Reihenfolge, Mindestdauer, Ausdauerverlust)
 - **Hütte:** `hut` (Rastdauer, Proviant, `loadRelief` = wie viel leichter der Rucksack wird)
 - **Sturm:** `storm` (Windstärke, Böen, Rutschigkeit) · **Nebel:** `fog.visibleRadius`
-- **Zufall:** `events.chance` und `events.pool`
+- **Leben:** `lives.max` (Anzahl Herzen), `lives.restartHold` (wie lange die Meldung beim Neustart steht)
+- **Ausrutscher:** `slip.duration`, `slip.staminaCost` · Stellen: `slipTriggers` in `js/level.js`
+- **Zufall:** `events.chance` und `events.pool` (für beide gleich, Ausrutscher gehören nicht mehr dazu)
 - **Routen fest statt zufällig:** `gates.fork = 'upper' | 'tunnel'`, `gates.fog = 'left' | 'right'`
 
 Die Sprünge selbst (Abstände der Pfeiler am Grat usw.) stehen in `js/level.js`.
@@ -92,8 +97,8 @@ Orientierung: Volle Sprungweite ≈ 210 px, volle Sprunghöhe ≈ 156 px. Bei le
 gut, mit fast leerer kaum zu schaffen. Normale Stufen sind ≤ 100 px hoch und immer machbar.
 
 **Richtwerte (Test-Bot, fehlerfreier Spieler, 15 % Fehlsprünge an schweren Stellen):**
-B ≈ 95 s, A ≈ 150–220 s (5–6 Pausen, ~2× Energie). Menschen brauchen beim ersten Mal etwa
-doppelt so lange, also ungefähr 3 Minuten (B) bzw. 5–7 Minuten (A).
+B ≈ 95–110 s, A ≈ 140–250 s (5–8 Pausen, ~2× Energie, selten 1× ganz von vorne).
+Menschen brauchen beim ersten Mal etwa doppelt so lange, also ungefähr 3 Minuten (B) bzw. 5–8 Minuten (A).
 
 ## Eigene Illustrationen (PNG/SVG)
 

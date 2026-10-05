@@ -953,6 +953,8 @@ BERG.PALETTE = {
     compass: '<circle cx="24" cy="24" r="17"/><path d="M24 11 L28 24 L24 37 L20 24 Z"/><path d="M24 3 V7 M24 41 V45 M3 24 H7 M41 24 H45"/>',
     rope: '<ellipse cx="24" cy="21" rx="15" ry="10"/><ellipse cx="24" cy="21" rx="9" ry="5.5"/><path d="M36 28 Q41 38 31 44"/>',
     boot: '<path d="M14 6 H26 V26 L40 31 Q44 33 43 38 H10 Q9 30 12 26 Z"/><path d="M10 38 V42 H43 V38"/><path d="M26 12 H20 M26 18 H20"/>',
+    heart: '<path d="M24 41 C12 32 6 26 6 18 C6 12 10 8 15.5 8 C19.5 8 22.5 10.5 24 14 C25.5 10.5 28.5 8 32.5 8 C38 8 42 12 42 18 C42 26 36 32 24 41 Z"/>',
+    slip: '<path d="M14 8 L24 6 L27 24 L39 25 Q44 26 43 31 L13 37 Q11 30 13 26 Z" transform="rotate(-14 24 24)"/><path d="M6 42 H42"/><path d="M5 34 Q9 31 12 33 M3 27 Q7 24 10 26"/>',
     bread: '<path d="M7 30 Q5 15 24 13 Q43 15 41 30 Q41 36 24 36 Q7 36 7 30 Z"/><path d="M15 20 L18 26 M23 18 L26 25 M31 19 L34 25"/>',
     backpack: '<path d="M13 16 Q13 8 24 8 Q35 8 35 16 V40 Q35 43 32 43 H16 Q13 43 13 40 Z"/><path d="M13 21 H35 L33 28 H15 Z"/><rect x="18" y="32" width="12" height="7" rx="1"/><path d="M20 8 V5 H28 V8"/>',
     lace: '<path d="M4 38 Q4 30 12 28 L22 25 L30 18 Q33 16 36 19 L44 30 Q46 36 40 38 Z"/><path d="M4 38 V42 H44 V38"/><path d="M20 26 L27 22 M24 28 L31 24"/><path d="M29 19 Q20 6 17 13 Q20 18 29 19 Q34 6 39 11 Q37 17 29 19"/><path d="M29 19 Q26 25 22 27 M29 19 Q33 24 34 28"/>',

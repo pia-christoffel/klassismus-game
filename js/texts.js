@@ -37,6 +37,7 @@ BERG.TEXT = {
     time: 'Zeit',
     stamina: 'Ausdauer',
     provisions: 'Proviant',
+    lives: 'Leben',
     altitude: 'Höhe',
     map: 'Karte',
     paused: 'Pause',
@@ -70,8 +71,10 @@ BERG.TEXT = {
   toasts: {
     exhausted: 'Du musst kurz verschnaufen.',
     ropeHolds: 'Das Seil hält.',
-    fall: 'Du stürzt ab.',
+    fall: 'Du stürzt ab. Ein Leben weniger.',
+    fallLast: 'Du stürzt ab. Das war dein letztes Leben.',
     respawnFar: 'Du fängst weiter unten wieder an.',
+    slip: 'Du rutschst aus.',
     deadEnd: 'Hier geht es nicht weiter.',
     eat: 'Du isst etwas.',
     hutRest: 'Du ruhst dich in der Hütte aus.',
@@ -83,12 +86,17 @@ BERG.TEXT = {
     workBack: 'Weiter geht’s.',
   },
 
+  // Alle Leben verloren (erscheint über der Schwarzblende)
+  restart: {
+    title: 'KEINE LEBEN MEHR.',
+    sub: 'Du musst ganz von vorne anfangen.',
+  },
+
   // Zufallsereignisse (IDs siehe CONFIG.events.pool)
   events: {
     fit: 'Du fühlst dich heute fit.',
     sun: 'Die Sonne kommt raus. Du atmest tief durch.',
     step: 'Ein guter Tritt. Es läuft.',
-    slip: 'Kleiner Ausrutscher.',
     drizzle: 'Kalter Nieselregen.',
     sleep: 'Du hast schlecht geschlafen.',
   },
@@ -157,7 +165,9 @@ BERG.TEXT = {
       { icon: 'map',      term: 'Karte',         meaning: 'Wissen über das Bildungssystem' },
       { icon: 'compass',  term: 'Kompass',       meaning: 'Orientierung durch Menschen, die den Weg schon kennen' },
       { icon: 'rope',     term: 'Sicherungsseil',meaning: 'Soziale und finanzielle Absicherung' },
+      { icon: 'heart',    term: 'Leben',         meaning: 'Zweite Chancen', note: 'Beide hatten gleich viele Leben, aber nur ohne Seil kostet ein Absturz eins. Charakter A hat nicht beliebig viele Versuche: Irgendwann heißt es, ganz von vorne anfangen oder den Abschluss aufgeben. Charakter B wird aufgefangen und bekommt immer wieder eine neue Chance.' },
       { icon: 'boot',     term: 'Ausrüstung',    meaning: 'Materielle und zeitliche Ressourcen' },
+      { icon: 'slip',     term: 'Ausrutscher',   meaning: 'Kleine Rückschläge im Alltag', note: 'Nur Charakter A ist ausgerutscht, nicht aus Ungeschick, sondern weil einfache Schuhe weniger Halt geben. Wer schlechter ausgestattet ist, rutscht öfter aus und verliert jedes Mal Zeit und Kraft.' },
       { icon: 'lace',     term: 'Schuhe binden', meaning: 'Nebenjob und andere Pflichten neben der Schule', note: 'Einfache Schuhe gehen öfter auf. Wer schlechtere Voraussetzungen hat, muss öfter anhalten, und die Zeit läuft trotzdem weiter.' },
       { icon: 'bread',    term: 'Proviant',      meaning: 'Verfügbare Ressourcen und Regeneration' },
       { icon: 'backpack', term: 'Rucksack',      meaning: 'Zusätzliche Belastungen' },
@@ -196,6 +206,9 @@ BERG.TEXT = {
       rows: {
         time: 'Zeit',
         falls: 'Stürze',
+        livesLost: 'Verlorene Leben',
+        restarts: 'Von vorne begonnen',
+        slips: 'Ausrutscher',
         detours: 'Umwege',
         pauses: 'Pausen',
         workShifts: 'Unterbrechungen',

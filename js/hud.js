@@ -11,6 +11,7 @@ BERG.HUD = (function () {
   const el = {};
   const last = {};
   let toastTimer = null;
+  let restartTimer = null;
 
   function init(container) {
     root = container;
@@ -20,6 +21,7 @@ BERG.HUD = (function () {
         <div class="hud-row"><span class="hud-lbl">${T.hud.stamina}</span>
           <div class="hud-bar" data-k="bar"><i data-k="stamina"></i><b style="left:${C.stamina.lowThreshold}%"></b></div></div>
         <div class="hud-row"><span class="hud-lbl">${T.hud.provisions}</span><span class="hud-prov" data-k="prov"></span></div>
+        <div class="hud-row"><span class="hud-lbl">${T.hud.lives}</span><span class="hud-hearts" data-k="hearts"></span></div>
       </div>
       <div class="hud-panel hud-right">
         <span class="hud-lbl">${T.hud.altitude}</span><span class="hud-val" data-k="alt"></span>
@@ -39,11 +41,22 @@ BERG.HUD = (function () {
       <div class="hud-controls" data-k="controls">${T.start.controls.map(([keys, v]) => `<span>${keys.map((k) => `<kbd>${k}</kbd>`).join('')} ${v}</span>`).join('')}</div>
       <div class="hud-intro" data-k="intro"></div>
       <div class="hud-fade" data-k="fade"></div>
+      <div class="hud-restart" data-k="restart">
+        <span class="hud-hearts">${heartsHTML(0)}</span>
+        <strong>${T.restart.title}</strong>
+        <small>${T.restart.sub}</small>
+      </div>
       <div class="hud-pause" data-k="pause"><div><h2>${T.hud.paused}</h2><p>${BERG.isTouch ? T.touch.resume : T.hud.pausedHint}</p></div></div>
     `;
     root.querySelectorAll('[data-k]').forEach((n) => (el[n.dataset.k] = n));
     // Tippen/Klicken auf „Pause“ setzt fort
     el.pause.addEventListener('click', () => { if (BERG.game) BERG.game.paused = false; });
+  }
+
+  /** Leben als Herzen: volle zuerst, verlorene als leere Umrisse */
+  const HEART = '<svg viewBox="0 0 20 18" aria-hidden="true"><path class="heart" d="M10 16.5 C4 12 1.5 9 1.5 5.6 C1.5 3.2 3.4 1.5 5.6 1.5 C7.6 1.5 9 2.7 10 4.3 C11 2.7 12.4 1.5 14.4 1.5 C16.6 1.5 18.5 3.2 18.5 5.6 C18.5 9 16 12 10 16.5 Z"/></svg>';
+  function heartsHTML(n) {
+    return Array.from({ length: C.lives.max }, (_, i) => `<span class="${i < n ? '' : 'empty'}">${HEART}</span>`).join('');
   }
 
   function fmtTime(s) {
@@ -66,6 +79,8 @@ BERG.HUD = (function () {
     el.toast.classList.remove('show');
     el.prompt.classList.remove('show');
     el.pause.classList.remove('show');
+    el.restart.classList.remove('show');
+    clearTimeout(restartTimer);
     el.fade.style.opacity = 0;
   }
 
@@ -80,6 +95,7 @@ BERG.HUD = (function () {
     set('prov', p.provisions, (v) => {
       el.prov.innerHTML = v > 0 ? '<i></i>'.repeat(v) : '<span class="none">–</span>';
     });
+    set('hearts', p.lives, (v) => (el.hearts.innerHTML = heartsHTML(v)));
     const alt = Math.round(C.altitude.base + -(p.y + p.h) * C.altitude.metersPerPixel);
     set('alt', alt, (v) => (el.alt.textContent = v.toLocaleString('de-DE') + ' m'));
 
@@ -124,6 +140,23 @@ BERG.HUD = (function () {
     toastTimer = setTimeout(() => el.toast.classList.remove('show'), (duration || 2.8) * 1000);
   }
 
+  /** Herz geht verloren: kurz aufpulsieren, dann leer */
+  function loseLife(n) {
+    if (!el.hearts) return;
+    last.hearts = n;
+    el.hearts.innerHTML = heartsHTML(n);
+    const lost = el.hearts.children[n];
+    if (lost) lost.classList.add('lost');
+  }
+
+  /** Alle Leben verloren: Meldung über der Schwarzblende */
+  function restart(duration) {
+    if (!el.restart) return;
+    el.restart.classList.add('show');
+    clearTimeout(restartTimer);
+    restartTimer = setTimeout(() => el.restart.classList.remove('show'), duration * 1000);
+  }
+
   function intro(title, sub, duration) {
     el.intro.innerHTML = `<small>${title}</small><strong>${sub}</strong>`;
     el.intro.classList.remove('show');
@@ -152,5 +185,5 @@ BERG.HUD = (function () {
       </svg>`;
   }
 
-  return { init, reset, update, toast, intro, fmtTime };
+  return { init, reset, update, toast, intro, loseLife, restart, fmtTime };
 })();

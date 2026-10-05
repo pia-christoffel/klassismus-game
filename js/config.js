@@ -66,9 +66,10 @@ BERG.CONFIG = {
     // Charakter A: schwerer Rucksack, einfache Schuhe (steht im Startscreen LINKS)
     A: {
       id: 'A',
-      load: 1.7,            // Rucksackgewicht → Multiplikator auf Verbrauch
+      load: 1.8,            // schwerer Rucksack → Multiplikator auf Ausdauerverbrauch beim Gehen & Springen (B: 1.0)
       regenMultiplier: 0.65,// schweres Gepäck → langsamere Erholung
       grip: 0.85,           // einfache Schuhe → weniger Halt im Sturm
+      slips: true,          // einfache Schuhe → rutscht an bestimmten Stellen aus
       map: false,           // Karte: Hinweis an der Weggabelung
       compass: false,       // Kompass: Richtung im Nebel
       rope: false,          // Sicherungsseil: naher Wiedereinstieg nach Sturz
@@ -85,6 +86,7 @@ BERG.CONFIG = {
       load: 1.0,
       regenMultiplier: 1.0,
       grip: 1.0,
+      slips: false,
       map: true,
       compass: true,
       rope: true,
@@ -132,15 +134,28 @@ BERG.CONFIG = {
 
   fog: { visibleRadius: 170, density: 0.95 },
 
+  // Ausrutscher – nur für Charaktere mit slips: true (einfache Schuhe).
+  // Wo genau, steht in level.js (slipTriggers).
+  slip: {
+    duration: 1.3,         // so lange liegt man nach einem Ausrutscher
+    staminaCost: 12,       // Ausdauerverlust
+  },
+
+  // Leben (Herzen) – für beide gleich viele. Ein Absturz ohne Sicherungsseil
+  // kostet ein Leben. Mit Seil (B) wird man aufgefangen und verliert keins.
+  // Sind alle Leben weg, geht es ganz von vorne los (Start am Fuß des Bergs).
+  lives: {
+    max: 3,
+    restartHold: 2.2,      // so lange bleibt die Meldung stehen, bevor es unten weitergeht
+  },
+
   // Zufallsereignisse – für beide Charaktere mit identischer Wahrscheinlichkeit
   events: {
-    slipDuration: 1.3, // so lange liegt man nach einem Ausrutscher
     chance: 0.65, // Wahrscheinlichkeit, dass an einem Auslösepunkt etwas passiert
     pool: [
       { id: 'fit',    stamina: +25 },
       { id: 'sun',    stamina: +15 },
       { id: 'step',   stamina: +10 },
-      { id: 'slip',   stamina: -15, slip: true }, // fällt kurz hin
       { id: 'drizzle',stamina: -10 },
       { id: 'sleep',  stamina: -20 },
     ],
