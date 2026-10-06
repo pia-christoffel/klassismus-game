@@ -425,7 +425,9 @@ window.BERG = window.BERG || {};
       if (moving) {
         p.idleT = 0;
         this.drain(S.walkDrain * p.load * zoneMul * dt);
-        this.regen(S.regenWalk * ch.regenMultiplier * dt);
+        // Erholung im Gehen nur, solange die Energie nicht knapp ist. Sonst würde
+        // der Balken lange fast leer stehen, bevor die Zwangspause kommt.
+        if (p.stamina > S.lowThreshold) this.regen(S.regenWalk * ch.regenMultiplier * dt);
       } else if (p.onGround) {
         p.idleT += dt;
         if (p.idleT > S.idleDelay) {
@@ -435,7 +437,9 @@ window.BERG = window.BERG || {};
       } else {
         p.idleT = 0;
       }
-      if (p.stamina <= 0 && p.onGround && !p.exhausted) {
+      // Energie leer → sofort Zwangspause. Nicht auf exakt 0 prüfen: Beim Gehen kommt
+      // pro Bild etwas Erholung dazu, dann blieben die letzten Prozent sehr lange stehen.
+      if (p.stamina <= S.exhaustAt && p.onGround && !p.exhausted) {
         p.exhausted = true;
         p.vx = 0;
         this.stats.pauses++;

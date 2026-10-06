@@ -88,8 +88,12 @@ BERG.HUD = (function () {
     const p = game.player;
     const st = game.stats;
     set('time', fmtTime(st.time), (v) => (el.time.textContent = v));
-    const pct = Math.round((p.stamina / C.stamina.max) * 100);
-    set('stamina', pct, (v) => (el.stamina.style.width = v + '%'));
+    // Balken ist genau dann leer, wenn die Zwangspause einsetzt (stamina.exhaustAt).
+    // Bis dahin bleibt ein schmaler, sichtbarer Rest stehen.
+    const S = C.stamina;
+    const raw = ((p.stamina - S.exhaustAt) / (S.max - S.exhaustAt)) * 100;
+    const pct = p.exhausted && raw <= 2 ? 0 : Math.max(2, raw);
+    set('stamina', pct.toFixed(1), (v) => (el.stamina.style.width = v + '%'));
     const state = p.exhausted ? 'out' : pct < C.stamina.lowThreshold ? 'low' : '';
     set('bar', state, (v) => (el.bar.className = 'hud-bar ' + v));
     set('prov', p.provisions, (v) => {

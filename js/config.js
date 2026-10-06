@@ -49,11 +49,12 @@ BERG.CONFIG = {
     stormMultiplier: 1.3,   // Faktor im Sturm
     regenIdle: 16,          // Erholung pro Sekunde im Stehen
     regenSit: 26,           // Erholung pro Sekunde beim Verschnaufen (S halten)
-    regenWalk: 1.0,         // Erholung pro Sekunde beim Gehen
+    regenWalk: 1.0,         // Erholung pro Sekunde beim Gehen (nur oberhalb von lowThreshold)
     idleDelay: 0.35,        // so lange stillstehen, bevor Erholung einsetzt
     lowThreshold: 35,       // unter diesem Wert wird es schwerer …
     lowSpeedFactor: 0.72,   // … Gehen bei 0 Ausdauer (Faktor)
     lowJumpFactor: 0.84,    // … Sprungkraft bei 0 Ausdauer (Faktor)
+    exhaustAt: 2,           // ab hier gilt die Ausdauer als leer → Zwangspause (Balken zeigt dann 0)
     exhaustedRecoverTo: 40, // nach Erschöpfung geht es erst ab hier weiter
     fallCost: 15,           // Ausdauerverlust bei einem Sturz (für beide gleich)
     sitCountsAsPauseAfter: 1.2, // so lange verschnaufen = zählt als Pause
